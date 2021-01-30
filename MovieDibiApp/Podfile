@@ -1,0 +1,44 @@
+platform :ios, '10.0'
+
+def sharedPods
+   pod 'Alamofire'
+end
+
+target 'MovieDibiApp' do
+  use_frameworks!
+  inhibit_all_warnings!
+end
+
+target 'MovieDibiAppView' do
+  use_frameworks!
+  inhibit_all_warnings!
+
+  pod 'TinyConstraints'
+  pod 'Kingfisher', '~> 6.0'
+end
+
+target 'MovieDibiAppViewModel' do
+  use_frameworks!
+  inhibit_all_warnings!
+
+  sharedPods
+end
+
+target 'MovieDibiAppService' do
+  use_frameworks!
+  inhibit_all_warnings!
+
+  sharedPods
+end
+
+target 'MovieDibiAppModel' do
+  use_frameworks!
+  inhibit_all_warnings!
+end
+
+target 'MovieDibiAppCommon' do
+  use_frameworks!
+  inhibit_all_warnings!
+
+  pod 'R.swift'
+end
