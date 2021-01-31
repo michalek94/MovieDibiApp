@@ -33,6 +33,7 @@ public final class MoviesListViewController: BaseViewController<MoviesListViewMo
 
     public override func setupSubviews() {
         super.setupSubviews()
+        moviesListView.searchBar.delegate = self
         moviesListView.tableView.delegate = self
         moviesListView.tableView.dataSource = self
         moviesListView.tableView.pagingDelegate = self
@@ -50,11 +51,19 @@ extension MoviesListViewController: MoviesListViewModelDelegate {
     }
     
     public func onDataReady() {
-        moviesListView.tableView.reloadData()
+        DispatchQueue.main.async { [weak self] in
+            self?.moviesListView.tableView.reloadData()
+        }
     }
     
     public func onMoreDataToFetchIfNeeded(_ isNeeded: Bool) {
         moviesListView.tableView.showLoadingFooterIfNeeded(isNeeded)
+    }
+}
+
+extension MoviesListViewController: UISearchBarDelegate {
+    public func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
     }
 }
 
@@ -87,7 +96,6 @@ extension MoviesListViewController: UITableViewDataSource {
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: MovieCell = tableView.dequeueReusableCell(for: indexPath)
         cell.setupCell(with: viewModel.getCellViewModel(atIndexPath: indexPath))
-        cell.changeCellBackgroundColorIfNeeded(indexPath.row % 2 == 0)
         return cell
     }
 }

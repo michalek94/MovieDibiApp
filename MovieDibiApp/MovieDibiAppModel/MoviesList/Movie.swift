@@ -5,8 +5,10 @@
 //  Created by Michał Pankowski on 30/01/2021.
 //
 
-public struct Movie: Codable {
+import MovieDibiAppCommon
 
+public struct Movie: Codable {
+    
     public let posterPath: String?
     public let adult: Bool
     public let overview: String
@@ -21,7 +23,7 @@ public struct Movie: Codable {
     public let voteCount: Int
     public let video: Bool
     public let voteAverage: Double
-
+    
     enum CodingKeys: String, CodingKey {
         case posterPath = "poster_path"
         case adult, overview
@@ -37,7 +39,7 @@ public struct Movie: Codable {
         case video
         case voteAverage = "vote_average"
     }
-
+    
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         posterPath = try values.decodeIfPresent(String.self, forKey: .posterPath)
@@ -54,6 +56,25 @@ public struct Movie: Codable {
         voteCount = try values.decode(Int.self, forKey: .voteCount)
         video = try values.decode(Bool.self, forKey: .video)
         voteAverage = try values.decode(Double.self, forKey: .voteAverage)
+    }
+
+    public var posterUrl: URL {
+        URL(string: "https://image.tmdb.org/t/p/w780\(posterPath ?? "")")!
+    }
+    
+    public var releaseDateFormatted: String? {
+        guard let date = AppDateFormatter.shared.date(from: releaseDate) else {
+            return nil
+        }
+        return AppDateFormatter.shared.string(from: date)
+    }
+
+    public var backdropUrl: URL {
+        URL(string: "https://image.tmdb.org/t/p/w780\(backdropPath ?? "")")!
+    }
+
+    public var voteAveragePercentText: String {
+        "\(Int(voteAverage * 10))%"
     }
 
 }

@@ -46,6 +46,18 @@ public class NavigationTopBarView: UIView {
         return label
     }()
     
+    private lazy var bottomSeparator: UIView = {
+        let view = UIView()
+        view.backgroundColor = .lightGray
+        return view
+    }()
+    
+    public var topBarTitleText: String? {
+        didSet {
+            titleLabel.text = topBarTitleText
+        }
+    }
+    
     public init() {
         super.init(frame: .zero)
         createViewsHierarchy()
@@ -62,11 +74,12 @@ public class NavigationTopBarView: UIView {
                 barView.add(
                     leftButton,
                     titleLabel
-                )
+                ),
+                bottomSeparator
             )
         )
     }
-    
+
     private func setupLayout() {
         containerView.edgesToSuperview()
         
@@ -80,27 +93,25 @@ public class NavigationTopBarView: UIView {
         
         titleLabel.centerInSuperview()
         titleLabel.height(45.0)
+        
+        bottomSeparator.edgesToSuperview(excluding: .top)
+        bottomSeparator.height(1.0)
     }
-    
+
     private func configureViews() {
         
     }
-    
+
     private func styleViews() {
         backgroundColor = .white
     }
-    
+
     @objc private func leftButtonTapped(_ sender: UIButton) {
         delegate?.leftButtonTapped(inView: self, sender: sender)
     }
-    
-    public func setTitle(_ title: String) {
-        titleLabel.text = title
-    }
-    
+
     public func showHideBackButtonIfNeeded(_ isNeeded: Bool = true) {
         isNeeded ? leftButton.fadeIn() : leftButton.fadeOut()
     }
-    
-}
 
+}

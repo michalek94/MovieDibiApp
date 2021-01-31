@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B50733425C6E896000268BB /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1B50733325C6E896000268BB /* Localizable.strings */; };
+		1B50733B25C6F1EB000268BB /* AppDateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B50733A25C6F1EB000268BB /* AppDateFormatter.swift */; };
 		1B6B005325C5A70E00A14F6C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6B005225C5A70E00A14F6C /* AppDelegate.swift */; };
 		1B6B005C25C5A70F00A14F6C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1B6B005B25C5A70F00A14F6C /* Assets.xcassets */; };
 		1B6B005F25C5A70F00A14F6C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1B6B005D25C5A70F00A14F6C /* LaunchScreen.storyboard */; };
@@ -204,6 +206,8 @@
 		14C9D46FCE98BD7B7C3409B7 /* Pods-MovieDibiAppModel.debug (development).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MovieDibiAppModel.debug (development).xcconfig"; path = "Target Support Files/Pods-MovieDibiAppModel/Pods-MovieDibiAppModel.debug (development).xcconfig"; sourceTree = "<group>"; };
 		164DEF9C4E14A70100DD6172 /* Pods-MovieDibiAppService.release (staging).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MovieDibiAppService.release (staging).xcconfig"; path = "Target Support Files/Pods-MovieDibiAppService/Pods-MovieDibiAppService.release (staging).xcconfig"; sourceTree = "<group>"; };
 		165B931D359ED1686D1EB50F /* Pods-MovieDibiAppModel.release (development).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MovieDibiAppModel.release (development).xcconfig"; path = "Target Support Files/Pods-MovieDibiAppModel/Pods-MovieDibiAppModel.release (development).xcconfig"; sourceTree = "<group>"; };
+		1B50733325C6E896000268BB /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		1B50733A25C6F1EB000268BB /* AppDateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDateFormatter.swift; sourceTree = "<group>"; };
 		1B6B004F25C5A70E00A14F6C /* MovieDibiApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieDibiApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B6B005225C5A70E00A14F6C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1B6B005B25C5A70F00A14F6C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -473,6 +477,8 @@
 				1B6B013825C5B53500A14F6C /* AppEnvironment.swift */,
 				1B6B031F25C5D55A00A14F6C /* R.generated.swift */,
 				1B6B005B25C5A70F00A14F6C /* Assets.xcassets */,
+				1B50733325C6E896000268BB /* Localizable.strings */,
+				1B50733A25C6F1EB000268BB /* AppDateFormatter.swift */,
 			);
 			path = MovieDibiAppCommon;
 			sourceTree = "<group>";
@@ -983,6 +989,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1B6B013225C5B4F900A14F6C /* Assets.xcassets in Resources */,
+				1B50733425C6E896000268BB /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1242,6 +1249,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1B6B014025C5B69D00A14F6C /* AppDataProvider.swift in Sources */,
+				1B50733B25C6F1EB000268BB /* AppDateFormatter.swift in Sources */,
 				1B6B014725C5B81B00A14F6C /* AppConstants.swift in Sources */,
 				1B6B013925C5B53500A14F6C /* AppEnvironment.swift in Sources */,
 				1B6B032025C5D55A00A14F6C /* R.generated.swift in Sources */,

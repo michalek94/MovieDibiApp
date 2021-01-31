@@ -11,6 +11,18 @@ import MovieDibiAppCommon
 public class MoviesListView: BaseView<MoviesListViewModel> {
 
     private lazy var topBar: NavigationTopBarView = { NavigationTopBarView() }()
+
+    private(set) public lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.autocapitalizationType = .none
+        searchBar.autocorrectionType = .no
+        searchBar.enablesReturnKeyAutomatically = true
+        searchBar.keyboardType = .asciiCapable
+        searchBar.placeholder = "Search movie with title"
+        searchBar.returnKeyType = .search
+        return searchBar
+    }()
+
     private(set) public lazy var tableView: PaginableTableView = {
         let tableView = PaginableTableView()
         var frame: CGRect = .zero
@@ -26,11 +38,13 @@ public class MoviesListView: BaseView<MoviesListViewModel> {
         tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.identifier)
         tableView.backgroundColor = .white
         tableView.contentInset.bottom = UIDevice.current.bottomSafeAreaInset
+        tableView.keyboardDismissMode = .onDrag
         return tableView
     }()
 
     public override init(viewModel: MoviesListViewModel) {
         super.init(viewModel: viewModel)
+        topBar.topBarTitleText = viewModel.viewTitle
         topBar.showHideBackButtonIfNeeded(false)
         viewModel.paginationDataProvider = tableView
     }
@@ -41,6 +55,7 @@ public class MoviesListView: BaseView<MoviesListViewModel> {
         super.createViewsHierarchy()
         add(
             topBar,
+            searchBar,
             tableView
         )
     }
@@ -49,7 +64,10 @@ public class MoviesListView: BaseView<MoviesListViewModel> {
         super.setupLayout()
         topBar.edgesToSuperview(excluding: .bottom)
         
-        tableView.topToBottom(of: topBar)
+        searchBar.topToBottom(of: topBar)
+        searchBar.horizontalToSuperview()
+        
+        tableView.topToBottom(of: searchBar)
         tableView.edgesToSuperview(excluding: .top)
     }
 

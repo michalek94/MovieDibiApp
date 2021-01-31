@@ -29,6 +29,9 @@ public final class MoviesListViewModel: BaseViewModel {
     private var cellViewModels: [MovieCellViewModel] = []
     private var currentPage: Int { paginationDataProvider?.currentPage ?? 0 }
 
+    public var viewTitle: String {
+        R.string.localizable.moviesListViewControllerTopBarTitle()
+    }
     public var numberOfSections: Int { 1 }
     public var numberOfRowsInSection: Int { cellViewModels.count }
     public var currentOffset: Int { currentPage * moviesPerPage }
@@ -47,9 +50,11 @@ public final class MoviesListViewModel: BaseViewModel {
                              silent: Bool = false,
                              completion: (() -> ())? = nil) {
         if interactor.manager.isInternetReachable {
+            notifyLoadingStartedIfNeeded(silent: silent)
             interactor.fetchMoviesList(withLanguage: "pl-PL",
                                        atPage: page,
                                        inRegion: "PL") { [weak self] response in
+                self?.notifyLoadingFinishedIfNeeded(silent: silent)
                 switch response.result {
                 case .success(let response):
                     if !response.results.isEmpty {

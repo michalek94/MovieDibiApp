@@ -1,0 +1,9 @@
+/* 
+  Localizable.strings
+  MovieDibiApp
+
+  Created by Michał Pankowski on 31/01/2021.
+  
+*/
+
+"MoviesListViewController.TopBar.Title" = "Now playing";
