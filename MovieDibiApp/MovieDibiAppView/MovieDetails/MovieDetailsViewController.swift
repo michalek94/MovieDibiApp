@@ -11,7 +11,7 @@ import TinyConstraints
 
 public final class MovieDetailsViewController: BaseViewController<MovieDetailsViewModel> {
 
-    private var moviesListView: MovieDetailView { view as! MovieDetailView }
+    private var movieDetailsView: MovieDetailView { view as! MovieDetailView }
 
     public override init(viewModel: MovieDetailsViewModel) {
         super.init(viewModel: viewModel)
@@ -27,12 +27,30 @@ public final class MovieDetailsViewController: BaseViewController<MovieDetailsVi
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        viewModel.fetchMovieDetails()
     }
 
     public override func setupSubviews() {
-        
+        super.setupSubviews()
+        movieDetailsView.topBar.delegate = self
     }
 
+}
+
+extension MovieDetailsViewController: NavigationTopBarViewDelegate {
+    public func leftButtonTapped(inView view: NavigationTopBarView, sender: UIButton) {
+        viewModel.onFlowBackRequested()
+    }
+    
+    public func rightButtonTapped(inView view: NavigationTopBarView, sender: UIButton) {
+        if viewModel.movieIsFavorite {
+            viewModel.movieIsFavorite = false
+            view.updateRightButton(false)
+        } else {
+            viewModel.movieIsFavorite = true
+            view.updateRightButton(true)
+        }
+    }
 }
 
 extension MovieDetailsViewController: MovieDetailsViewModelDelegate {
@@ -45,7 +63,6 @@ extension MovieDetailsViewController: MovieDetailsViewModelDelegate {
     }
     
     public func onDataReady() {
-        
+        movieDetailsView.updateSubviews(with: viewModel)
     }
 }
-

@@ -72,6 +72,14 @@ public class MovieCell: UITableViewCell {
         label.textColor = .blackDisabled
         return label
     }()
+    
+    private lazy var favoriteButton: UIButton = {
+        let button = UIButton()
+        button.addTarget(self, action: #selector(MovieCell.favoriteButtonTapped(_:)), for: .touchUpInside)
+        return button
+    }()
+    
+    private var viewModel: MovieCellViewModel?
 
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -103,7 +111,8 @@ public class MovieCell: UITableViewCell {
                         movieTitleLabel,
                         movieOriginalTitleLabel,
                         movieVoteDateLabel
-                    )
+                    ),
+                    favoriteButton
                 )
             )
         )
@@ -135,19 +144,35 @@ public class MovieCell: UITableViewCell {
         movieVoteDateLabel.leadingToSuperview(offset: 7.5)
         movieVoteDateLabel.trailingToSuperview(offset: 7.5)
         movieVoteDateLabel.bottomToSuperview()
+        
+        favoriteButton.edgesToSuperview(excluding: [.top, .leading], insets: .init(top: 0.0, left: 0.0, bottom: 7.5, right: 7.5))
+        favoriteButton.size(CGSize(width: 24.0, height: 24.0))
+        favoriteButton.touchAreaEdgeInsets = .init(top: -20.0, left: -20.0, bottom: -20.0, right: -20.0)
     }
 
     private func configureViews() {
         selectionStyle = .none
     }
+    
+    @objc private func favoriteButtonTapped(_ sender: UIButton) {
+        if viewModel?.movieIsFavorite ?? false {
+            viewModel?.movieIsFavorite = false
+            sender.setImage(R.image.unfavorite(), for: .normal)
+        } else {
+            viewModel?.movieIsFavorite = true
+            sender.setImage(R.image.favorite(), for: .normal)
+        }
+    }
 
     public func setupCell(with viewModel: MovieCellViewModel?) {
         guard let viewModel = viewModel else { return }
+        self.viewModel = viewModel
         posterImageView.kf.setImage(with: viewModel.posterUrl,
                                     placeholder: R.image.photo_placeholder_icon())
         movieTitleLabel.text = viewModel.movieTitle
         movieOriginalTitleLabel.text = viewModel.movieOriginalTitle
         movieVoteDateLabel.text = viewModel.movieVoteDate
+        favoriteButton.setImage(viewModel.movieIsFavorite ? R.image.favorite() : R.image.unfavorite(), for: .normal)
     }
 
 }

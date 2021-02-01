@@ -34,10 +34,11 @@ public class MoviesCoordinator: NavigationFlowCoordinator {
 }
 
 extension MoviesCoordinator: MoviesListViewModelFlowDelegate {
-    public func flowToMovieDetails(with id: Int) {
+    public func flowToMovieDetails(with id: Int, title: String) {
         let interactor = MovieDetailsInteractor(manager: dependencies.connectionManager)
         let viewModel = MovieDetailsViewModel(interactor: interactor,
-                                              movieId: id)
+                                              movieId: id,
+                                              movieTitle: title)
         viewModel.flowDelegate = self
         let viewController = MovieDetailsViewController(viewModel: viewModel)
         push(viewController: viewController)

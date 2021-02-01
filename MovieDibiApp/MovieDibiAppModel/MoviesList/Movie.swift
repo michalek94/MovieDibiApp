@@ -12,7 +12,7 @@ public struct Movie: Codable {
     public let posterPath: String?
     public let adult: Bool
     public let overview: String
-    public let releaseDate: String
+    public let releaseDate: String?
     public let genreIds: [Int]
     public let id: Int
     public let originalTitle: String
@@ -45,7 +45,7 @@ public struct Movie: Codable {
         posterPath = try values.decodeIfPresent(String.self, forKey: .posterPath)
         adult = try values.decode(Bool.self, forKey: .adult)
         overview = try values.decode(String.self, forKey: .overview)
-        releaseDate = try values.decode(String.self, forKey: .releaseDate)
+        releaseDate = try values.decodeIfPresent(String.self, forKey: .releaseDate)
         genreIds = try values.decode([Int].self, forKey: .genreIds)
         id = try values.decode(Int.self, forKey: .id)
         originalTitle = try values.decode(String.self, forKey: .originalTitle)
@@ -63,7 +63,7 @@ public struct Movie: Codable {
     }
     
     public var releaseDateFormatted: String? {
-        guard let date = AppDateFormatter.shared.date(from: releaseDate) else {
+        guard let date = AppDateFormatter.shared.date(from: releaseDate ?? "") else {
             return nil
         }
         return AppDateFormatter.shared.string(from: date)
@@ -73,8 +73,8 @@ public struct Movie: Codable {
         URL(string: "https://image.tmdb.org/t/p/w780\(backdropPath ?? "")")!
     }
 
-    public var voteAveragePercentText: String {
-        "\(Int(voteAverage * 10))%"
+    public var voteAverageText: String {
+        "\(voteAverage)"
     }
 
 }

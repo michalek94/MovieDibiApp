@@ -8,4 +8,5 @@
 public class AppConstants {
     public class var launchScreenName: String { "LaunchScreen" }
     public class var appDefaultAnimationDuration: TimeInterval { 0.3 }
+    public class var favoritesMoviesIdsKey: String { "favoritesMoviesIds" }
 }

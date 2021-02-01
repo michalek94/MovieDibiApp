@@ -24,19 +24,68 @@ public final class MovieDetailsViewModel: BaseViewModel {
     public weak var flowDelegate: MovieDetailsViewModelFlowDelegate?
     public weak var delegate: MovieDetailsViewModelDelegate?
     
+    private let userDefaults = UserDefaults.standard
+    private var movieDetails: MovieDetails?
+    
+    public var movieIsFavorite: Bool {
+        get {
+            let favoriteMovies = userDefaults.array(forKey: AppConstants.favoritesMoviesIdsKey) as? [Int]
+            return favoriteMovies?.contains(self.movieId) ?? false
+        }
+        set {
+            var favoriteMovies = userDefaults.array(forKey: AppConstants.favoritesMoviesIdsKey) as? [Int]
+            if newValue {
+                if let _ = favoriteMovies {
+                    favoriteMovies?.append(self.movieId)
+                } else {
+                    favoriteMovies = []
+                    favoriteMovies?.append(self.movieId)
+                }
+            } else {
+                favoriteMovies?.removeAll(where: { $0 == self.movieId })
+            }
+            UserDefaults.standard.set(favoriteMovies, forKey: AppConstants.favoritesMoviesIdsKey)
+        }
+    }
+    
+    public var posterUrl: URL? { movieDetails?.posterUrl }
+    public var backdropUrl: URL? { movieDetails?.backdropUrl }
+    public var movieOriginalTitle: String? { movieDetails?.originalTitle }
+    public var movieVoteDate: String? {
+        if let date = movieDetails?.releaseDateFormatted {
+            return String(format: "%@ - %@", movieDetails?.voteAverageText ?? "", date)
+        } else {
+            return String(format: "%@", movieDetails?.voteAverageText ?? "")
+        }
+    }
+    public var movieOverview: String? { movieDetails?.overview }
+    
     private let interactor: MovieDetailsInteractor
     private let movieId: Int
+    public let movieTitle: String
     
     public init(interactor: MovieDetailsInteractor,
-                movieId: Int) {
+                movieId: Int,
+                movieTitle: String) {
         self.interactor = interactor
         self.movieId = movieId
+        self.movieTitle = movieTitle
         super.init()
     }
     
-    private func fetchMovieDetails() {
+    public func fetchMovieDetails() {
         if interactor.manager.isInternetReachable {
-            
+            notifyLoadingStartedIfNeeded(silent: false)
+            interactor.fetchMovieDetails(withId: movieId) { [weak self] response in
+                self?.notifyLoadingFinishedIfNeeded(silent: false)
+                switch response.result {
+                case .success(let details):
+                    self?.movieDetails = details
+                    self?.delegate?.onDataReady()
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
         } else {
             print("There is no internet connection!")
         }
@@ -49,18 +98,9 @@ public final class MovieDetailsViewModel: BaseViewModel {
     private func notifyLoadingFinishedIfNeeded(silent: Bool) {
         if !silent { delegate?.onDataLoadingFinished() }
     }
-
-    private func handleSuccess() {
-
-        delegate?.onDataReady()
-    }
-
-    private func handleEmptyFetch() {
-        
-    }
-
-    public func loadData() {
-        
+    
+    public func onFlowBackRequested() {
+        flowDelegate?.flowBackRequested()
     }
     
 }
