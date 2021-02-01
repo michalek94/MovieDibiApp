@@ -7,10 +7,23 @@
 
 import MovieDibiAppViewModel
 import MovieDibiAppCommon
+import SearchTextField
 
 public class MoviesListView: BaseView<MoviesListViewModel> {
 
     private lazy var topBar: NavigationTopBarView = { NavigationTopBarView() }()
+
+    private(set) public lazy var searchTextField: UITextField = {
+        let textField = UITextField()
+        textField.autocapitalizationType = .none
+        textField.autocorrectionType = .no
+        textField.enablesReturnKeyAutomatically = true
+        textField.keyboardType = .asciiCapable
+        textField.placeholder = "Find your favorite movie"
+        textField.returnKeyType = .search
+        return textField
+    }()
+
     private(set) public lazy var tableView: PaginableTableView = {
         let tableView = PaginableTableView()
         var frame: CGRect = .zero
@@ -26,12 +39,14 @@ public class MoviesListView: BaseView<MoviesListViewModel> {
         tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.identifier)
         tableView.backgroundColor = .white
         tableView.contentInset.bottom = UIDevice.current.bottomSafeAreaInset
+        tableView.keyboardDismissMode = .onDrag
         return tableView
     }()
 
     public override init(viewModel: MoviesListViewModel) {
         super.init(viewModel: viewModel)
-        topBar.showHideBackButtonIfNeeded(false)
+        topBar.topBarTitleText = viewModel.viewTitle
+        topBar.showHideLeftButtonIfNeeded(false)
         viewModel.paginationDataProvider = tableView
     }
 
@@ -41,6 +56,7 @@ public class MoviesListView: BaseView<MoviesListViewModel> {
         super.createViewsHierarchy()
         add(
             topBar,
+            searchTextField,
             tableView
         )
     }
@@ -49,7 +65,12 @@ public class MoviesListView: BaseView<MoviesListViewModel> {
         super.setupLayout()
         topBar.edgesToSuperview(excluding: .bottom)
         
-        tableView.topToBottom(of: topBar)
+        searchTextField.topToBottom(of: topBar)
+        searchTextField.leadingToSuperview(offset: 7.5)
+        searchTextField.trailingToSuperview(offset: 7.5)
+        searchTextField.height(56.0)
+        
+        tableView.topToBottom(of: searchTextField)
         tableView.edgesToSuperview(excluding: .top)
     }
 

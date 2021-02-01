@@ -9,11 +9,14 @@ import MovieDibiAppModel
 import Alamofire
 
 public protocol MovieDetailsInteracting {
-    func fetchMovieDetails()
+    func fetchMovieDetails(withId id: Int,
+                           completionHandler: ((DataResponse<MovieDetails, AFError>) -> ())?)
 }
 
 public class MovieDetailsInteractor: ConnectionService, MovieDetailsInteracting {
-    public func fetchMovieDetails() {
-        
+    public func fetchMovieDetails(withId id: Int,
+                                  completionHandler: ((DataResponse<MovieDetails, AFError>) -> ())?) {
+        let urlComponents = URLComponents(string: "\(manager.baseUrl)movie/\(id)")!
+        manager.request(urlComponents, completionHandler: completionHandler)
     }
 }

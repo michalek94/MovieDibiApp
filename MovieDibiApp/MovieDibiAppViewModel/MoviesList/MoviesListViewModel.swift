@@ -10,7 +10,7 @@ import MovieDibiAppModel
 import MovieDibiAppCommon
 
 public protocol MoviesListViewModelFlowDelegate: class {
-    func flowToMovieDetails(with id: Int)
+    func flowToMovieDetails(with id: Int, title: String)
 }
 
 public protocol MoviesListViewModelDelegate: class {
@@ -29,11 +29,16 @@ public final class MoviesListViewModel: BaseViewModel {
     private var cellViewModels: [MovieCellViewModel] = []
     private var currentPage: Int { paginationDataProvider?.currentPage ?? 0 }
 
+    public var viewTitle: String {
+        R.string.localizable.moviesListViewControllerTopBarTitle()
+    }
     public var numberOfSections: Int { 1 }
     public var numberOfRowsInSection: Int { cellViewModels.count }
     public var currentOffset: Int { currentPage * moviesPerPage }
     public var moviesTotalCount: Int = 0
     public var moviesPerPage: Int = 20
+    
+    public var autoCompletionPossibilities: [String] = []
 
     private let interactor: MoviesListInteractor
 
@@ -47,9 +52,9 @@ public final class MoviesListViewModel: BaseViewModel {
                              silent: Bool = false,
                              completion: (() -> ())? = nil) {
         if interactor.manager.isInternetReachable {
-            interactor.fetchMoviesList(withLanguage: "pl-PL",
-                                       atPage: page,
-                                       inRegion: "PL") { [weak self] response in
+            notifyLoadingStartedIfNeeded(silent: silent)
+            interactor.fetchMoviesList(atPage: page) { [weak self] response in
+                self?.notifyLoadingFinishedIfNeeded(silent: silent)
                 switch response.result {
                 case .success(let response):
                     if !response.results.isEmpty {
@@ -69,6 +74,27 @@ public final class MoviesListViewModel: BaseViewModel {
             print("There is no internet connection!")
         }
     }
+    
+    public func searchMovie(withQuery query: String, completion: (([String]?) -> ())?) {
+        if interactor.manager.isInternetReachable {
+            interactor.searchMovie(withQuery: query) { response in
+                switch response.result {
+                case .success(let response):
+                    let titles = response.results.map { $0.title }
+                    if !titles.isEmpty {
+                        completion?(titles)
+                    } else {
+                        completion?([])
+                    }
+                case .failure(let error):
+                    completion?([])
+                    print(error.localizedDescription)
+                }
+            }
+        } else {
+            print("There is no internet connection!")
+        }
+    }
 
     private func notifyLoadingStartedIfNeeded(silent: Bool) {
         if !silent { delegate?.onDataLoadingStarted() }
@@ -82,9 +108,9 @@ public final class MoviesListViewModel: BaseViewModel {
         moviesTotalCount = totalCount
         
         if isReloading {
-            cellViewModels = movies.map { MovieCellViewModel(movie: $0) }
+            cellViewModels = movies.map { MovieCellViewModel(movie: $0 ) }
         } else {
-            cellViewModels.append(contentsOf: movies.map { MovieCellViewModel(movie: $0) })
+            cellViewModels.append(contentsOf: movies.map { MovieCellViewModel(movie: $0 )})
         }
         
         delegate?.onDataReady()
@@ -120,7 +146,13 @@ public final class MoviesListViewModel: BaseViewModel {
     }
     
     public func flowToMovieDetails(atIndexPath indexPath: IndexPath) {
-        flowDelegate?.flowToMovieDetails(with: cellViewModels[indexPath.row].id)
+        flowDelegate?.flowToMovieDetails(with: cellViewModels[indexPath.row].id,
+                                         title: cellViewModels[indexPath.row].movieTitle)
+    }
+    
+    public func resetData() {
+        cellViewModels = []
+        delegate?.onDataReady()
     }
     
 }

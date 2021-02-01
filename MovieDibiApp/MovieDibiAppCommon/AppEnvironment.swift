@@ -20,7 +20,7 @@ public class AppEnvironment {
 
     public lazy var serverBaseUrl: String = {
         switch configuration {
-        case .development, .staging, .production: return "https://api.themoviedb.org/3/movie/"
+        case .development, .staging, .production: return "https://api.themoviedb.org/3/"
         }
     }()
 
