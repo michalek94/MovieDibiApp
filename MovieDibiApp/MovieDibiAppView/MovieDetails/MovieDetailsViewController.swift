@@ -12,6 +12,7 @@ import TinyConstraints
 public final class MovieDetailsViewController: BaseViewController<MovieDetailsViewModel> {
 
     private var movieDetailsView: MovieDetailView { view as! MovieDetailView }
+    private let loaderView = LoaderView()
 
     public override init(viewModel: MovieDetailsViewModel) {
         super.init(viewModel: viewModel)
@@ -55,11 +56,11 @@ extension MovieDetailsViewController: NavigationTopBarViewDelegate {
 
 extension MovieDetailsViewController: MovieDetailsViewModelDelegate {
     public func onDataLoadingStarted() {
-        
+        loaderView.showActivityIndicator(inView: view)
     }
     
     public func onDataLoadingFinished() {
-        
+        loaderView.hideActivityIndicator()
     }
     
     public func onDataReady() {

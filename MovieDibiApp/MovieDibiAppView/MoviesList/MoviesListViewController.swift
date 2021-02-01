@@ -30,6 +30,9 @@ public final class MoviesListViewController: BaseViewController<MoviesListViewMo
     public override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.loadData()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(MoviesListViewController.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MoviesListViewController.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -45,7 +48,32 @@ public final class MoviesListViewController: BaseViewController<MoviesListViewMo
         moviesListView.tableView.dataSource = self
         moviesListView.tableView.pagingDelegate = self
     }
-    
+
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        let userInfo = notification.userInfo!
+        let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as! Double
+        let curve = userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as! UInt
+        let options = UIView.AnimationOptions(rawValue: curve)
+        var keyboardFrame: CGRect = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+        keyboardFrame = self.view.convert(keyboardFrame, from: nil)
+        let bottomSafeAreaHeight = UIDevice.current.bottomSafeAreaInset
+        let contentInset: UIEdgeInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: keyboardFrame.size.height - bottomSafeAreaHeight - 60.0, right: 0.0)
+
+        UIView.animate(withDuration: duration, delay: 0, options: options) { [weak self] in
+            self?.view.layoutIfNeeded()
+            self?.moviesListView.tableView.contentInset = contentInset
+            self?.moviesListView.tableView.scrollIndicatorInsets = contentInset
+        }
+    }
+
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        UIView.animate(withDuration: AppConstants.appDefaultAnimationDuration) { [weak self] in
+            self?.view.layoutIfNeeded()
+            self?.moviesListView.tableView.contentInset = .zero
+            self?.moviesListView.tableView.scrollIndicatorInsets = .zero
+        }
+    }
+
 }
 
 extension MoviesListViewController: MoviesListViewModelDelegate {
@@ -86,15 +114,20 @@ extension MoviesListViewController: UITextFieldDelegate {
     @objc private func searchTextFieldDidChange(_ sender: UITextField) {
         let textToSearch = sender.text ?? ""
         if (textToSearch.count > 1), !isReplacing {
-            viewModel.searchMovie(withQuery: textToSearch) { [weak self] (titles) in
+            viewModel.searchQuery = textToSearch
+            viewModel.loadSearchData { [weak self] (titles) in
                 self?.autoCompleteText(in: sender, using: textToSearch, suggestionsArray: titles ?? [])
             }
+        }
+        if textToSearch.isEmpty {
+            viewModel.loadData()
         }
     }
 
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         isReplacing = false
         textField.resignFirstResponder()
+        viewModel.loadSearchData()
         return true
     }
 
@@ -102,7 +135,7 @@ extension MoviesListViewController: UITextFieldDelegate {
         if !string.isEmpty, let selectedTextRange = textField.selectedTextRange, selectedTextRange.end == textField.endOfDocument,
            let prefixRange = textField.textRange(from: textField.beginningOfDocument, to: selectedTextRange.start),
            let text = textField.text(in: prefixRange) {
-            let matches = suggestionsArray.filter { $0.lowercased().contains(text.lowercased()) }
+            let matches = suggestionsArray.filter { $0.lowercased().hasPrefix(text.lowercased()) }
             if (matches.count > 0) {
                 textField.text = matches[0]
                 if let start = textField.position(from: textField.beginningOfDocument, offset: text.count) {
@@ -149,9 +182,11 @@ extension MoviesListViewController: UITableViewDataSource {
 extension MoviesListViewController: PaginableTableViewDelegate {
     public func loadMoreItems(currentPage: Int) {
         viewModel.loadMoreData(atPage: currentPage)
+        viewModel.loadMoreSearchData(atPage: currentPage)
     }
 
     public func refresh(completion: @escaping () -> ()) {
         viewModel.reloadData(completion: completion)
+        viewModel.reloadSearchData(refreshCompletion: completion)
     }
 }

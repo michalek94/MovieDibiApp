@@ -28,15 +28,19 @@ public final class MoviesListViewModel: BaseViewModel {
 
     private var cellViewModels: [MovieCellViewModel] = []
     private var currentPage: Int { paginationDataProvider?.currentPage ?? 0 }
-
+    
     public var viewTitle: String {
         R.string.localizable.moviesListViewControllerTopBarTitle()
+    }
+    public var searchTextFieldPlaceholder: String {
+        R.string.localizable.moviesListViewControllerSearchTextFieldPlaceholder()
     }
     public var numberOfSections: Int { 1 }
     public var numberOfRowsInSection: Int { cellViewModels.count }
     public var currentOffset: Int { currentPage * moviesPerPage }
     public var moviesTotalCount: Int = 0
     public var moviesPerPage: Int = 20
+    public var searchQuery: String = ""
     
     public var autoCompletionPossibilities: [String] = []
 
@@ -75,21 +79,41 @@ public final class MoviesListViewModel: BaseViewModel {
         }
     }
     
-    public func searchMovie(withQuery query: String, completion: (([String]?) -> ())?) {
+    private func searchMovie(withQuery query: String,
+                             offset: Int,
+                             page: Int,
+                             silent: Bool = false,
+                             searchCompletion: (([String]?) -> ())? = nil,
+                             refreshCompletion: (() -> ())? = nil) {
         if interactor.manager.isInternetReachable {
-            interactor.searchMovie(withQuery: query) { response in
+            notifyLoadingStartedIfNeeded(silent: silent)
+            interactor.searchMovie(withQuery: query, atPage: page) { [weak self] response in
+                self?.notifyLoadingFinishedIfNeeded(silent: silent)
                 switch response.result {
                 case .success(let response):
-                    let titles = response.results.map { $0.title }
-                    if !titles.isEmpty {
-                        completion?(titles)
+                    if let searchCompletion = searchCompletion {
+                        let titles = response.results.map { $0.title }
+                        if !titles.isEmpty {
+                            self?.searchQuery = query
+                            searchCompletion(titles)
+                        } else {
+                            searchCompletion([])
+                        }
                     } else {
-                        completion?([])
+                        if !response.results.isEmpty {
+                            self?.handleSuccessFetch(movies: response.results,
+                                                     totalCount: response.totalResults,
+                                                     isReloading: offset == 0)
+                        } else {
+                            self?.handleEmptyFetch(silent: silent,
+                                                   completion: refreshCompletion)
+                        }
                     }
                 case .failure(let error):
-                    completion?([])
                     print(error.localizedDescription)
                 }
+                refreshCompletion?()
+                
             }
         } else {
             print("There is no internet connection!")
@@ -128,6 +152,12 @@ public final class MoviesListViewModel: BaseViewModel {
         fetchMovies(offset: 0, page: 1, silent: false, completion: nil)
     }
     
+    public func loadSearchData(searchCompletion: (([String]?) -> ())? = nil) {
+        if !searchQuery.isEmpty {
+            searchMovie(withQuery: searchQuery, offset: 0, page: 1, silent: false, searchCompletion: searchCompletion, refreshCompletion: nil)
+        }
+    }
+    
     public func loadMoreData(atPage page: Int) {
         guard currentOffset < moviesTotalCount else {
             delegate?.onDataLoadingFinished()
@@ -136,9 +166,26 @@ public final class MoviesListViewModel: BaseViewModel {
         
         fetchMovies(offset: currentOffset, page: page, silent: true, completion: nil)
     }
+    
+    public func loadMoreSearchData(atPage page: Int) {
+        guard currentOffset < moviesTotalCount else {
+            delegate?.onDataLoadingFinished()
+            return
+        }
+        
+        if !searchQuery.isEmpty {
+            searchMovie(withQuery: searchQuery, offset: currentOffset, page: page, silent: true, searchCompletion: nil, refreshCompletion: nil)
+        }
+    }
 
     public func reloadData(completion: @escaping () -> ()) {
         fetchMovies(offset: 0, page: 1, silent: true, completion: completion)
+    }
+    
+    public func reloadSearchData(refreshCompletion: @escaping () -> ()) {
+        if !searchQuery.isEmpty {
+            searchMovie(withQuery: searchQuery, offset: 0, page: 1, silent: true, searchCompletion: nil, refreshCompletion: refreshCompletion)
+        }
     }
     
     public func getCellViewModel(atIndexPath indexPath: IndexPath) -> MovieCellViewModel {

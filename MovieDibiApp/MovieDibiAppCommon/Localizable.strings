@@ -7,3 +7,4 @@
 */
 
 "MoviesListViewController.TopBar.Title" = "Now playing";
+"MoviesListViewController.SearchTextField.Placeholder" = "Find your favorite movie";

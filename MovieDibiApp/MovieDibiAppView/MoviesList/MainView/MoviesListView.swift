@@ -19,7 +19,7 @@ public class MoviesListView: BaseView<MoviesListViewModel> {
         textField.autocorrectionType = .no
         textField.enablesReturnKeyAutomatically = true
         textField.keyboardType = .asciiCapable
-        textField.placeholder = "Find your favorite movie"
+        textField.placeholder = viewModel.searchTextFieldPlaceholder
         textField.returnKeyType = .search
         return textField
     }()
