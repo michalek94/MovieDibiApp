@@ -149,7 +149,9 @@ public final class MoviesListViewModel: BaseViewModel {
     }
     
     public func loadData() {
-        fetchMovies(offset: 0, page: 1, silent: false, completion: nil)
+        if searchQuery.isEmpty {
+            fetchMovies(offset: 0, page: 1, silent: false, completion: nil)
+        }
     }
     
     public func loadSearchData(searchCompletion: (([String]?) -> ())? = nil) {
@@ -164,7 +166,9 @@ public final class MoviesListViewModel: BaseViewModel {
             return
         }
         
-        fetchMovies(offset: currentOffset, page: page, silent: true, completion: nil)
+        if searchQuery.isEmpty {
+            fetchMovies(offset: currentOffset, page: page, silent: true, completion: nil)
+        }
     }
     
     public func loadMoreSearchData(atPage page: Int) {
@@ -179,7 +183,9 @@ public final class MoviesListViewModel: BaseViewModel {
     }
 
     public func reloadData(completion: @escaping () -> ()) {
-        fetchMovies(offset: 0, page: 1, silent: true, completion: completion)
+        if searchQuery.isEmpty {
+            fetchMovies(offset: 0, page: 1, silent: true, completion: completion)
+        }
     }
     
     public func reloadSearchData(refreshCompletion: @escaping () -> ()) {

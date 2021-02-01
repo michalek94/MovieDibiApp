@@ -120,6 +120,7 @@ extension MoviesListViewController: UITextFieldDelegate {
             }
         }
         if textToSearch.isEmpty {
+            viewModel.searchQuery = ""
             viewModel.loadData()
         }
     }
